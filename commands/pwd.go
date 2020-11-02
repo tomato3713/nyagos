@@ -8,6 +8,16 @@ import (
 	"strconv"
 )
 
+var pwdHelp = cmdHelp{
+	usage: "pwd -N (N:digit) -L -P",
+	short: "Print the current working drive and directory.",
+	long: `Print the current working drive and directory.
+    Options:
+        -N: N is digit. Print the N-previous directory.
+        -L: Use PWD from environment, even if it contains symlinks. (default)
+        -P: avoid symlinks.`,
+}
+
 func cmdPwd(ctx context.Context, cmd Param) (int, error) {
 	physical := false
 	if len(cmd.Args()) >= 2 {
@@ -21,6 +31,12 @@ func cmdPwd(ctx context.Context, cmd Param) (int, error) {
 				return errnoNoHistory, fmt.Errorf("pwd %s: too old history", cmd.Arg(1))
 			}
 			fmt.Fprintln(cmd.Out(), cdHistory[i])
+			return 0, nil
+		} else if cmd.Arg(1) == "-h" || cmd.Arg(1) == "/h" {
+			fmt.Fprintf(cmd.Out(), pwdHelp.shortHelp())
+			return 0, nil
+		} else if cmd.Arg(1) == "-help" || cmd.Arg(1) == "/help" {
+			fmt.Fprintf(cmd.Out(), pwdHelp.longHelp())
 			return 0, nil
 		}
 	}
